@@ -16,7 +16,8 @@ oc -n  quarkuscoffeeshop-cicd create -f ./common-functions/tasks/maven.yaml
 
 **Configure push image to quay task**
 ```
-oc -n  quarkuscoffeeshop-cicd create -f ./quarkuscoffeeshop-counter/tektontasks/pushImageToQuay.yaml
+export QUAY_URL=
+sed "s/{QUAY_URL}/$QUAY_URL/" ./quarkuscoffeeshop-counter/tektontasks/pushImageToQuay.yaml | oc -n  quarkuscoffeeshop-cicd create -f -
 ```
 
 **configure Resources**
@@ -26,12 +27,14 @@ oc -n quarkuscoffeeshop-cicd create -f  ./quarkuscoffeeshop-counter/resources/im
 ```
 
 **Create Pipeline**
+
 ```
-oc -n quarkuscoffeeshop-cicd create -f  ./quarkuscoffeeshop-counter/pipeline/deploy-pipeline.yaml
+export QUAY_URL=
+sed "s/{QUAY_URL}/$QUAY_URL/" ./quarkuscoffeeshop-counter/pipeline/deploy-pipeline.yaml | oc -n  quarkuscoffeeshop-cicd create -f -
 ```
 
 
-### Integration testing instructions 
+### Integration testing instructions
 ```
 oc adm policy add-role-to-user admin system:serviceaccount:quarkuscoffeeshop-demo:pipeline -n quarkuscoffeeshop-cicd
 oc policy add-role-to-group system:image-puller system:serviceaccounts:quarkuscoffeeshop-demo -n quarkuscoffeeshop-cicd

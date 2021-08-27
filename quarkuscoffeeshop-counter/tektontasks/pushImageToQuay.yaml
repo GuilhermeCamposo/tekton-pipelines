@@ -14,7 +14,7 @@ spec:
         secret.
       name: quay-io-account
       type: string
-    - default: quay.io/quarkuscoffeeshop/quarkuscoffeeshop-counter
+    - default: {QUAY_URL}/quarkuscoffeeshop/quarkuscoffeeshop-counter
       description: The quay.io repository in which to store the image.
       name: quay-io-repository
       type: string
@@ -30,7 +30,6 @@ spec:
     - command:
         - podman
         - pull
-        - '--tls-verify=false'
         - >-
           docker://image-registry.openshift-image-registry.svc:5000/quarkuscoffeeshop-cicd/quarkuscoffeeshop-counter:$(inputs.params.quay-io-image-tag-name)
       image: registry.redhat.io/rhel8/podman
@@ -71,6 +70,7 @@ spec:
     - command:
         - buildah
         - push
+        - '--tls-verify=false'
         - '--storage-driver=$(params.STORAGE_DRIVER)'
         - '--authfile'
         - /etc/secret-volume/.dockerconfigjson

@@ -10,7 +10,7 @@ spec:
       description: Image Tag Value
       name: IMAGE_TAG
       type: string
-    - default: quay.io/quarkuscoffeeshop/quarkuscoffeeshop-counter
+    - default: {QUAY_URL}/quarkuscoffeeshop/quarkuscoffeeshop-counter
       name: quay-io-repository
       type: string
     - default: latest
@@ -86,29 +86,26 @@ spec:
     - name: tag-test-image
       params:
         - name: ARGS
-          value:
-            - tag
-            - 'quarkuscoffeeshop-counter:$(params.IMAGE_TAG)'
-            - 'quarkuscoffeeshop-counter:latest'
+          value: tag quarkuscoffeeshop-counter:$(params.IMAGE_TAG) quarkuscoffeeshop-counter:latest
       runAfter:
         - build-java-app-image
       taskRef:
-        kind: ClusterTask
+        kind: Task
         name: openshift-client
-    - name: push-to-test-env
-      params:
-        - name: ARGS
-          value:
-            - patch
-            - deployment/quarkuscoffeeshop-counter
-            - $(params.PATCH_IMAGE)
-            - '-n'
-            - quarkuscoffeeshop-demo
-      runAfter:
-        - tag-test-image
-      taskRef:
-        kind: ClusterTask
-        name: openshift-client
+    # - name: push-to-test-env
+    #   params:
+    #     - name: ARGS
+    #       value:
+    #         - patch
+    #         - deployment/quarkuscoffeeshop-counter
+    #         - $(params.PATCH_IMAGE)
+    #         - '-n'
+    #         - quarkuscoffeeshop-demo
+    #   runAfter:
+    #     - tag-test-image
+    #   taskRef:
+    #     kind: ClusterTask
+    #     name: openshift-client
     - name: push-quarkuscoffeeshop-counter-image-to-quay
       params:
         - name: quay-io-repository
@@ -120,23 +117,23 @@ spec:
           - name: image
             resource: image
       runAfter:
-        - push-to-test-env
+        - tag-test-image
       taskRef:
         kind: Task
         name: push-quarkuscoffeeshop-counter-image-to-quay
-    - name: send-to-webhook-slack
-      params:
-        - name: webhook-secret
-          value: $(params.webhook-secret)
-        - name: message
-          value: >-
-            Pipeline build pushed succesfully to 
-            $(params.quay-io-repository):$(params.quay-io-image-tag-name)
-      runAfter:
-        - push-quarkuscoffeeshop-counter-image-to-quay
-      taskRef:
-        kind: Task
-        name: send-to-webhook-slack
+    # - name: send-to-webhook-slack
+    #   params:
+    #     - name: webhook-secret
+    #       value: $(params.webhook-secret)
+    #     - name: message
+    #       value: >-
+    #         Pipeline build pushed succesfully to
+    #         $(params.quay-io-repository):$(params.quay-io-image-tag-name)
+    #   runAfter:
+    #     - push-quarkuscoffeeshop-counter-image-to-quay
+    #   taskRef:
+    #     kind: Task
+    #     name: send-to-webhook-slack
   workspaces:
     - name: shared-workspace
     - name: maven-settings
