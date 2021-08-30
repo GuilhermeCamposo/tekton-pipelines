@@ -4,11 +4,10 @@ metadata:
   name: openshift-client
   namespace: quarkuscoffeeshop-cicd
 spec:
-  inputs:
-    params:
-      - name: ARGS
-        description: The OpenShift CLI arguments to run
-        default: help
+  params:
+    - name: ARGS
+      description: The OpenShift CLI arguments to run
+      default: help
   steps:
     - name: oc
       image: quay.io/openshiftlabs/openshift-cli-tekton-workshop:2.0

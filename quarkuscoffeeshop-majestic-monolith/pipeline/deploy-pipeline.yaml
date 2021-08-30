@@ -11,11 +11,11 @@ spec:
       description: Image Tag Value
       name: IMAGE_TAG
       type: string
-    - default: quay.io/quarkuscoffeeshop/quarkuscoffeeshop-majestic-monolith
+    - default: {QUAY_URL}/quarkuscoffeeshop/quarkuscoffeeshop-majestic-monolith
       name: quay-io-repository
       type: string
     - default: main
-      description: Select Branch 
+      description: Select Branch
       name: branch_name
     - default: latest
       name: quay-io-image-tag-name
@@ -92,29 +92,26 @@ spec:
     - name: tag-test-image
       params:
         - name: ARGS
-          value:
-            - tag
-            - 'quarkuscoffeeshop-majestic-monolith:$(params.IMAGE_TAG)'
-            - 'quarkuscoffeeshop-majestic-monolith:latest'
+          value: tag quarkuscoffeeshop-majestic-monolith:$(params.IMAGE_TAG) quarkuscoffeeshop-majestic-monolith:latest
       runAfter:
         - build-java-app-image
       taskRef:
-        kind: ClusterTask
+        kind: Task
         name: openshift-client
-    - name: push-to-test-env
-      params:
-        - name: ARGS
-          value:
-            - patch
-            - deployment/quarkuscoffeeshop-majestic-monolith
-            - $(params.PATCH_IMAGE)
-            - '-n'
-            - quarkuscoffeeshop-integration
-      runAfter:
-        - tag-test-image
-      taskRef:
-        kind: ClusterTask
-        name: openshift-client
+    # - name: push-to-test-env
+    #   params:
+    #     - name: ARGS
+    #       value:
+    #         - patch
+    #         - deployment/quarkuscoffeeshop-majestic-monolith
+    #         - $(params.PATCH_IMAGE)
+    #         - '-n'
+    #         - quarkuscoffeeshop-integration
+    #   runAfter:
+    #     - tag-test-image
+    #   taskRef:
+    #     kind: ClusterTask
+    #     name: openshift-client
     - name: push-quarkuscoffeeshop-majestic-monolith-image-to-quay
       params:
         - name: quay-io-repository
@@ -126,38 +123,38 @@ spec:
           - name: image
             resource: image
       runAfter:
-        - push-to-test-env
+        - tag-test-image
       taskRef:
         kind: Task
         name: push-quarkuscoffeeshop-majestic-monolith-image-to-quay
-    - name: push-quarkuscoffeeshop-majestic-monolith-image-to-quay-latest
-      params:
-        - name: quay-io-repository
-          value: $(params.quay-io-repository)
-        - name: quay-io-image-tag-name
-          value: latest
-      resources:
-        inputs:
-          - name: image
-            resource: image
-      runAfter:
-        - push-quarkuscoffeeshop-majestic-monolith-image-to-quay
-      taskRef:
-        kind: Task
-        name: push-quarkuscoffeeshop-majestic-monolith-image-to-quay-latest
-    - name: send-to-webhook-slack
-      params:
-        - name: webhook-secret
-          value: $(params.webhook-secret)
-        - name: message
-          value: >-
-            Pipeline build pushed succesfully to 
-            $(params.quay-io-repository):$(params.quay-io-image-tag-name)
-      runAfter:
-        - push-quarkuscoffeeshop-majestic-monolith-image-to-quay-latest
-      taskRef:
-        kind: Task
-        name: send-to-webhook-slack
+    # - name: push-quarkuscoffeeshop-majestic-monolith-image-to-quay-latest
+    #   params:
+    #     - name: quay-io-repository
+    #       value: $(params.quay-io-repository)
+    #     - name: quay-io-image-tag-name
+    #       value: latest
+    #   resources:
+    #     inputs:
+    #       - name: image
+    #         resource: image
+    #   runAfter:
+    #     - push-quarkuscoffeeshop-majestic-monolith-image-to-quay
+    #   taskRef:
+    #     kind: Task
+    #     name: push-quarkuscoffeeshop-majestic-monolith-image-to-quay-latest
+    # - name: send-to-webhook-slack
+    #   params:
+    #     - name: webhook-secret
+    #       value: $(params.webhook-secret)
+    #     - name: message
+    #       value: >-
+    #         Pipeline build pushed succesfully to
+    #         $(params.quay-io-repository):$(params.quay-io-image-tag-name)
+    #   runAfter:
+    #     - push-quarkuscoffeeshop-majestic-monolith-image-to-quay-latest
+    #   taskRef:
+    #     kind: Task
+    #     name: send-to-webhook-slack
   workspaces:
     - name: shared-workspace
     - name: maven-settings

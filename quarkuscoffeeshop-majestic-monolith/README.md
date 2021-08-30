@@ -13,9 +13,9 @@ oc adm policy add-role-to-user admin system:serviceaccount:quarkuscoffeeshop-int
 oc policy add-role-to-group system:image-puller system:serviceaccounts:quarkuscoffeeshop-integration -n quarkuscoffeeshop-cicd
 oc adm policy add-role-to-user admin system:serviceaccount:quarkuscoffeeshop-cicd:pipeline -n quarkuscoffeeshop-integration
 ```
-**Run the kustomize command to deploy pipelines** 
+**Run the kustomize command to deploy pipelines**
 ```
-kustomize build quarkuscoffeeshop-majestic-monolith | oc create -f - 
+kustomize build quarkuscoffeeshop-majestic-monolith | oc create -f -
 ```
 
 **Update Environment Variables in deployment**
@@ -24,7 +24,7 @@ oc edit deployment.apps/quarkuscoffeeshop-majestic-monolith  -n quarkuscoffeesho
 ```
 **Run the command below to enable to Anisble Tower Pipeline**
 ```
- oc create -f quarkuscoffeeshop-majestic-monolith/pipeline/deploy-to-edge-pipeline.yaml 
+ oc create -f quarkuscoffeeshop-majestic-monolith/pipeline/deploy-to-edge-pipeline.yaml
 ```
 
 ## Configure webhooks
@@ -56,7 +56,7 @@ oc -n quarkuscoffeeshop-cicd create route edge monolith-webhook --service=el-qua
    6. Click on `Add webhook`
 
 
-## Deploy pipelines Manually 
+## Deploy pipelines Manually
 ---
 
 **configure pvc**
@@ -86,11 +86,12 @@ oc -n quarkuscoffeeshop-cicd create -f  ./quarkuscoffeeshop-majestic-monolith/re
 
 **Create Pipeline**
 ```
-oc -n quarkuscoffeeshop-cicd create -f  ./quarkuscoffeeshop-majestic-monolith/pipeline/deploy-pipeline.yaml
+export QUAY_URL=
+sed "s/{QUAY_URL}/$QUAY_URL/" ./quarkuscoffeeshop-majestic-monolith/pipeline/deploy-pipeline.yaml | oc -n  quarkuscoffeeshop-cicd create -f -
 ```
 
 
-### Integration testing instructions 
+### Integration testing instructions
 1. Configure permissions for project
 ```
 oc new-project quarkuscoffeeshop-integration
@@ -98,8 +99,8 @@ oc adm policy add-role-to-user admin system:serviceaccount:quarkuscoffeeshop-int
 oc policy add-role-to-group system:image-puller system:serviceaccounts:quarkuscoffeeshop-integration -n quarkuscoffeeshop-cicd
 oc adm policy add-role-to-user admin system:serviceaccount:quarkuscoffeeshop-cicd:pipeline -n quarkuscoffeeshop-integration
 ```
-2. Run build pipeline 
-3. Run the below commands 
+2. Run build pipeline
+3. Run the below commands
 
 ```
 oc project quarkuscoffeeshop-integration
